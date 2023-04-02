@@ -233,7 +233,7 @@ bool movesPossibleForPlayer(char board[][26], int n, char currentPlayer) {
 }
 
 // This functions checks for valid input
-void checkForValidInput(char board[][26], int n, char colour,
+bool checkForValidInput(char board[][26], int n, char colour,
                         char computerColour, int row, int col,
                         bool *humanMadeInvalid) {
   int deltaRow, deltaCol;
@@ -246,17 +246,17 @@ void checkForValidInput(char board[][26], int n, char colour,
                                   deltaCol)) {
           flipTiles(board, n, row, col, colour, deltaRow, deltaCol);
           // printBoard(board, n);
-          return;
+          return true;
         }
       }
     }
   }
 
   printf("Invalid move.\n");
-  printf("%c player wins.", computerColour);
-  *humanMadeInvalid = true;
-  gameOver(board, n, humanMadeInvalid);
-  return;
+//   printf("%c player wins.", computerColour);
+//  *humanMadeInvalid = true;
+//   gameOver(board, n, humanMadeInvalid);
+  return false;
 }
 
 int numberOfFlippedTiles(char board[][26], int n, int row, int col, char colour,
@@ -281,12 +281,11 @@ void copyBoard(char board1[][26], char board2[][26], int n) {
 
 void makeBestMove(char board[][26], int n, char computerColour) {
   int deltaRow, deltaCol;
-  int count = 0;
   int imax = 0;
   int jmax = 0;
   int scoremax = 0;
 
-  int flipCount[26][26];
+  int cellScore[26][26];
 
   // Store orignal board for printing later
   char originalBoard[26][26];
@@ -294,6 +293,7 @@ void makeBestMove(char board[][26], int n, char computerColour) {
 
   for (int row = 0; row < n; row++) {
     for (int col = 0; col < n; col++) {
+      int count = 0;
       if ((positionInBounds(n, row, col)) && (board[row][col] == BLANK)) {
         for (deltaRow = -1; deltaRow <= 1; deltaRow++) {
           for (deltaCol = -1; deltaCol <= 1; deltaCol++) {
@@ -306,15 +306,14 @@ void makeBestMove(char board[][26], int n, char computerColour) {
           }
         }
       }
-      flipCount[row][col] = count;
-      count = 0;
+      cellScore[row][col] = count;
     }
   }
 
   for (int row = 0; row < n; row++) {
     for (int col = 0; col < n; col++) {
-      if (flipCount[row][col] > scoremax) {
-        scoremax = flipCount[row][col];
+      if (cellScore[row][col] > scoremax) {
+        scoremax = cellScore[row][col];
         imax = row;
         jmax = col;
       }
@@ -341,11 +340,15 @@ void playHumanPlayer(char board[][26], int n, char currentPlayer,
   char row, col;
 
   if (movesPossibleForPlayer(board, n, humanColour)) {
-    printf("Enter move for colour %c (RowCol): ", humanColour);
-    scanf(" %c%c", &row, &col);
-    checkForValidInput(board, n, currentPlayer, computerColour, row - 'a',
-                       col - 'a', humanMadeInvalid);
-    printf("\n");
+
+    bool validInput=false;
+    do {
+        printf("Enter move for colour %c (RowCol): ", humanColour);
+        scanf(" %c%c", &row, &col);
+        validInput=checkForValidInput(board, n, currentPlayer, computerColour, row - 'a',
+                        col - 'a', humanMadeInvalid);
+        printf("\n\n");
+    } while(validInput==false);
     return;
   }
 
@@ -367,7 +370,7 @@ void playComputerPlayer(char board[][26], int n, char currentPlayer,
 }
 
 // This function determines who's turn it is and plays the game accordingly
-char whichColourTurn(char board[][26], int n, char currentPlayer,
+char takeTurn(char board[][26], int n, char currentPlayer,
                      char computerColour, char humanColour,
                      bool *humanMadeInvalid) {
   if (currentPlayer == humanColour) {
@@ -408,7 +411,7 @@ int main(void) {
   }
 
   while (gameOver(board, n, &humanMadeInvalid) == false) {
-    currentPlayer = whichColourTurn(board, n, currentPlayer, computerColour,
+    currentPlayer = takeTurn(board, n, currentPlayer, computerColour,
                                     humanColour, &humanMadeInvalid);
   }
 
