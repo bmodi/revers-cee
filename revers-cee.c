@@ -34,20 +34,24 @@ void printBoard(char board[][26], int n) {
     // Print the column labels
     printf("  ");
     for (int i = 0; i < n; i++) {
-        printf("%2c", 'a' + i);
+        printf("  %c ", 'a' + i);
     }
-    printf("\n");
+    printf("\n  ");
+    for (int j = 0; j < n; j++) {
+        printf("+---");
+    }
+    printf("+\n");
 
     // Print the rows of the board
     for (int i = 0; i < n; i++) {
         printf("%c ", 'a' + i);
         for (int j = 0; j < n; j++) {
-            printf("|%c ", board[i][j]);
+            printf("| %c ", board[i][j]);
         }
         printf("|\n");
         printf("  ");
         for (int j = 0; j < n; j++) {
-            printf("+--");
+            printf("+---");
         }
         printf("+\n");
     }
